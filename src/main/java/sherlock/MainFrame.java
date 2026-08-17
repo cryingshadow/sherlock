@@ -20,7 +20,7 @@ public class MainFrame extends JFrame {
             KeyStroke.getKeyStroke("ESCAPE"),
             JComponent.WHEN_IN_FOCUSED_WINDOW
         );
-        final JButton lastSeen = new JButton("Wann haben Sie George zuletzt gesehen?");
+        final JButton lastSeen = new JButton(String.format("Wann haben Sie %s zuletzt gesehen?", Game.VICTIM));
         lastSeen.setFont(new Font("Arial", Font.BOLD, 32));
         lastSeen.setBorder(new EmptyBorder(10, 10, 10, 10));
         lastSeen.addActionListener(

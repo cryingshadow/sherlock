@@ -32,15 +32,9 @@ public class TimesPanel extends JPanel {
         final GridBagConstraints constraints = new GridBagConstraints();
         final JPanel times = new JPanel();
         times.setLayout(new GridLayout(3, 3));
-        times.add(TimesPanel.timeButton("1", engine));
-        times.add(TimesPanel.timeButton("2", engine));
-        times.add(TimesPanel.timeButton("3", engine));
-        times.add(TimesPanel.timeButton("4", engine));
-        times.add(TimesPanel.timeButton("5", engine));
-        times.add(TimesPanel.timeButton("6", engine));
-        times.add(TimesPanel.timeButton("7", engine));
-        times.add(TimesPanel.timeButton("8", engine));
-        times.add(TimesPanel.timeButton("9", engine));
+        for (int time = 1; time < 10; time++) {
+            times.add(TimesPanel.timeButton(String.valueOf(time), engine));
+        }
         final JLabel title = new JLabel("Wo waren Sie zu dieser Zeit?");
         title.setHorizontalAlignment(SwingConstants.CENTER);
         title.setAlignmentX(Component.CENTER_ALIGNMENT);

@@ -13,9 +13,31 @@ public class SuspectsPanel extends JPanel {
     public SuspectsPanel(final Engine engine) {
         this.setBackground(Color.WHITE);
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        final JList<String> suspects =
-            new JList<String>(new String[]{"Alice", "Bob", "Charlie", "Doris", "Edward", "Fiona"});
-        ((DefaultListCellRenderer)suspects.getCellRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+        final JList<Suspect> suspects = new JList<Suspect>(Suspect.values());
+        final DefaultListCellRenderer renderer =
+            new DefaultListCellRenderer() {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Component getListCellRendererComponent(
+                    final JList<?> list,
+                    final Object value,
+                    final int index,
+                    final boolean isSelected,
+                    final boolean cellHasFocus)
+                {
+                    if (value instanceof final Suspect suspect) {
+                        return super.getListCellRendererComponent(list, suspect.name, index, isSelected, cellHasFocus);
+                    }
+                    return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                }
+
+            };
+        renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        suspects.setCellRenderer(renderer);
+//        final DefaultListCellRenderer renderer = (DefaultListCellRenderer)suspects.getCellRenderer();
+//        renderer.
         suspects.setAlignmentX(Component.CENTER_ALIGNMENT);
         suspects.setFont(new Font("Arial", Font.PLAIN, 24));
         suspects.setSelectedIndex(0);

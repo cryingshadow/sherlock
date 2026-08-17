@@ -102,4 +102,14 @@ public record Door(Room room1, Room room2) {
         }
     }
 
+    public Room nextRoom(final Room room) {
+        if (room == this.room1()) {
+            return this.room2();
+        }
+        if (room == this.room2()) {
+            return this.room1();
+        }
+        return null;
+    }
+
 }
