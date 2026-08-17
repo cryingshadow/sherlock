@@ -24,6 +24,10 @@ public class Game {
 
     private final Room[][] locations;
 
+    private final Suspect murderer;
+
+    private final int murderTime;
+
     private final Random random;
 
     public Game() {
@@ -36,29 +40,35 @@ public class Game {
                 this.locations[person][time] = rooms[this.random.nextInt(rooms.length - 1)];
             }
         }
-        final int murderTime = this.random.nextInt(Game.TIMES);
-        for (int time = 0; time < murderTime; time++) {
+        this.murderTime = this.random.nextInt(Game.TIMES);
+        for (int time = 0; time < this.murderTime; time++) {
             this.locations[numberOfSuspects][time] = rooms[this.random.nextInt(rooms.length)];
         }
-        final int murderer = this.random.nextInt(numberOfSuspects);
-        this.locations[numberOfSuspects][murderTime] = this.locations[murderer][murderTime];
+        final int murdererIndex = this.random.nextInt(numberOfSuspects);
+        this.murderer = Suspect.values()[murdererIndex];
+        this.locations[numberOfSuspects][this.murderTime] = this.locations[murdererIndex][this.murderTime];
     }
 
     public Information last(final Suspect suspect) {
         final int person = suspect.ordinal();
         final int numberOfSuspects = Suspect.values().length;
+        final boolean isMurderer = suspect == this.murderer;
         String lastTime = null;
-        for (int time = Game.TIMES - 1; time >= 0; time--) {
+        outer: for (int time = Game.TIMES - 1; time >= 0; time--) {
             final Room victimRoom = this.locations[numberOfSuspects][time];
             final Room personRoom = this.locations[person][time];
             if (victimRoom == personRoom) {
-                lastTime = Game.toTime(time);
-                break;
+                if (!isMurderer || time != this.murderTime) {
+                    lastTime = Game.toTime(time);
+                    break outer;
+                }
             }
             for (final Door door : Game.DOORS) {
                 if (victimRoom != null && victimRoom == door.nextRoom(personRoom)) {
-                    lastTime = Game.toTime(time);
-                    break;
+                    if (!isMurderer || time != this.murderTime) {
+                        lastTime = Game.toTime(time);
+                        break outer;
+                    }
                 }
             }
         }
@@ -71,7 +81,11 @@ public class Game {
     public Information when(final Suspect suspect, final Room room) {
         final List<Integer> times = new ArrayList<Integer>();
         final int person = suspect.ordinal();
+        final boolean isMurderer = suspect == this.murderer;
         for (int time = 0; time < Game.TIMES; time++) {
+            if (isMurderer && time == this.murderTime) {
+                continue;
+            }
             if (this.locations[person][time] == room) {
                 times.add(time);
             }
@@ -85,6 +99,14 @@ public class Game {
 
     public Information where(final Suspect suspect, final String time) {
         final Room room = this.locations[suspect.ordinal()][Integer.parseInt(time) - 1];
+        if (suspect == this.murderer && Integer.parseInt(time) - 1 == this.murderTime) {
+            final Room[] rooms = Room.values();
+            Room otherRoom = room;
+            while (room == otherRoom) {
+                otherRoom = rooms[this.random.nextInt(rooms.length - 1)];
+            }
+            return new Information(time, otherRoom, Set.of(), Set.of());
+        }
         return new Information(time, room, this.here(suspect, time, room), this.nextDoor(time, room));
     }
 
