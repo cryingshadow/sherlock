@@ -19,7 +19,7 @@ public class RoomsPanel extends JPanel {
 
     private final List<Room> rooms;
 
-    public RoomsPanel() {
+    public RoomsPanel(final Engine engine) {
         this.setBackground(Color.WHITE);
         this.rooms =
             List.of(
@@ -48,13 +48,7 @@ public class RoomsPanel extends JPanel {
             public void mouseClicked(final MouseEvent e) {
                 final String clickedRoom = RoomsPanel.this.findRoom(e.getX(), e.getY());
                 if (clickedRoom != null) {
-                    JOptionPane.showMessageDialog(
-                        RoomsPanel.this,
-                        "Sie haben den Raum „" + clickedRoom + "“ angeklickt.",
-                        "Rauminformation",
-                        JOptionPane.INFORMATION_MESSAGE
-                    );
-                    RoomsPanel.this.repaint();
+                    engine.roomClicked(clickedRoom);
                 }
             }
         });
