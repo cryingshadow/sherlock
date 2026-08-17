@@ -2,6 +2,9 @@ package sherlock;
 
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.*;
+
+import javax.swing.*;
 
 public class Engine {
 
@@ -27,7 +30,61 @@ public class Engine {
 
     public void roomClicked(final Room room) {
         if (room == Room.OK) {
-            this.notify("Sie haben den Fall gelöst.");
+            final int murderer =
+                JOptionPane.showOptionDialog(
+                    null,
+                    "Wer hat " + Game.VICTIM + " ermordet?",
+                    "Mörder",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    Arrays.stream(Suspect.values()).map(s -> s.name).toArray(),
+                    Suspect.ALICE.name
+                );
+            final int time =
+                JOptionPane.showOptionDialog(
+                    null,
+                    "Wann wurde " + Game.VICTIM + " ermordet?",
+                    "Mordzeit",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    IntStream.range(1, 10).boxed().toArray(),
+                    Integer.valueOf(1)
+                );
+            final int place =
+                JOptionPane.showOptionDialog(
+                    null,
+                    "Und wo wurde " + Game.VICTIM + " ermordet?",
+                    "Tatort",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    Arrays.stream(Room.values()).limit(Room.values().length - 1).map(r -> r.name).toArray(),
+                    Room.LIVING_ROOM.name
+                );
+            switch (this.game.solve(murderer, time, place)) {
+            case 3:
+                final String placePrefix = List.of(1, 3, 4).contains(place) ? "in der" : "im";
+                JOptionPane.showMessageDialog(
+                    null,
+                    String.format(
+                        "Herzlichen Glückwunsch, Herr Holmes!\n%s%s hat %s um %s Uhr %s %s ermordet.",
+                        "Sie haben den Fall gelöst!\n\n",
+                        Suspect.values()[murderer].name,
+                        Game.VICTIM,
+                        time + 1,
+                        placePrefix,
+                        Room.values()[place].name
+                    )
+                );
+                System.exit(0);
+            case 2:
+                JOptionPane.showMessageDialog(null, "Aber Herr Holmes - das stimmt leider nicht ganz!");
+                break;
+            default:
+                JOptionPane.showMessageDialog(null, "Aber Herr Holmes - Ihr Keks ist wohl feucht!");
+            }
         } else {
             this.notify(this.game.when(this.suspect, room).toString());
         }

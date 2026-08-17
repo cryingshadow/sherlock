@@ -1,6 +1,7 @@
 package sherlock;
 
 import java.util.*;
+import java.util.stream.*;
 
 public class Game {
 
@@ -17,6 +18,36 @@ public class Game {
     public static final int TIMES = 9;
 
     public static final String VICTIM = "George";
+
+    public static String jobDescription() {
+        final StringBuilder result = new StringBuilder();
+        result.append("Sehr geehrter Herr Holmes,\n\n");
+        result.append(
+            Arrays.stream(Suspect.values())
+            .limit(Suspect.values().length - 1)
+            .map(s -> s.name)
+            .collect(Collectors.joining(", "))
+        );
+        result.append(" und ");
+        result.append(Suspect.values()[Suspect.values().length - 1].name);
+        result.append(" waren Gäste auf einer Feier von ");
+        result.append(Game.VICTIM);
+        result.append(".\nUm 10 Uhr abends wurde ");
+        result.append(Game.VICTIM);
+        result.append(" tot auf seinem Anwesen aufgefunden.\nMittags hatte ");
+        result.append(Game.VICTIM);
+        result.append(" noch einem Bankett mit vielen Teilnehmern vorgestanden, bevor ");
+        result.append(Game.VICTIM);
+        result.append(" sich mit seinen Gästen auf sein Anwesen zurückzog.\n");
+        result.append(Game.VICTIM);
+        result.append(" muss von einem der Gäste zwischen 1 Uhr nachmittags und 9 Uhr abends ermordet worden sein.\n");
+        result.append("Wir beauftragen Sie damit, herauszufinden, wer ");
+        result.append(Game.VICTIM);
+        result.append(" wann und in welchem Raum ermordet hat.\nSie können dazu die Gäste befragen. Aber Vorsicht - ");
+        result.append("der Mörder lügt bestimmt!\n\n");
+        result.append("Übernehmen Sie den Fall?");
+        return result.toString();
+    }
 
     private static String toTime(final int time) {
         return String.valueOf(time + 1);
@@ -49,6 +80,13 @@ public class Game {
         this.locations[numberOfSuspects][this.murderTime] = this.locations[murdererIndex][this.murderTime];
     }
 
+    Game(final Room[][] locations, final Suspect murderer, final int murderTime) {
+        this.random = new Random(42);
+        this.locations = locations;
+        this.murderer = murderer;
+        this.murderTime = murderTime;
+    }
+
     public Information last(final Suspect suspect) {
         final int person = suspect.ordinal();
         final int numberOfSuspects = Suspect.values().length;
@@ -76,6 +114,20 @@ public class Game {
             return new Information(null, null, null, null);
         }
         return this.where(suspect, lastTime);
+    }
+
+    public int solve(final int murderer, final int time, final int place) {
+        int result = 0;
+        if (murderer == this.murderer.ordinal()) {
+            result++;
+        }
+        if (time == this.murderTime) {
+            result++;
+        }
+        if (place == this.locations[this.murderer.ordinal()][this.murderTime].ordinal()) {
+            result++;
+        }
+        return result;
     }
 
     public Information when(final Suspect suspect, final Room room) {
