@@ -95,7 +95,14 @@ public class GameTest {
             );
         Assert.assertEquals(
             game.last(Suspect.ALICE),
-            new Information("3", Room.KITCHEN, Set.of("Charlie", "Edward", "George"), Set.of("Bob"))
+            new Information(
+                Suspect.ALICE,
+                "Alice, wann haben Sie George zuletzt gesehen?",
+                "3",
+                Room.KITCHEN,
+                Set.of("Charlie", "Edward", "George"),
+                Set.of("Bob")
+            )
         );
     }
 

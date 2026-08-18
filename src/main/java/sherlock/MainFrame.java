@@ -34,12 +34,23 @@ public class MainFrame extends JFrame {
             }
         );
         final JTextArea messages = new JTextArea();
-        engine.registerMessageListener(message -> messages.setText(message));
+        messages.setFont(new Font("Arial", Font.PLAIN, 16));
+        messages.setBorder(new EmptyBorder(10, 10, 10, 10));
+        messages.setAutoscrolls(true);
+        messages.append("Befragungen:");
+        engine.registerMessageListener(message -> {
+            messages.append("\n\n" + message);
+            messages.setCaretPosition(messages.getDocument().getLength());
+        });
+        final JScrollPane messagesPane = new JScrollPane(messages);
+        messagesPane.setAutoscrolls(true);
         final Container content = this.getContentPane();
         content.setLayout(new GridBagLayout());
         final GridBagConstraints constraints = new GridBagConstraints();
         constraints.weightx = 0;
         constraints.weighty = 0;
+        constraints.ipadx = 10;
+        constraints.ipady = 10;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -59,7 +70,7 @@ public class MainFrame extends JFrame {
         constraints.gridx = 0;
         constraints.gridy = 2;
         constraints.gridwidth = 3;
-        content.add(messages, constraints);
+        content.add(messagesPane, constraints);
     }
 
 }

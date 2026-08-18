@@ -5,19 +5,34 @@ import java.util.stream.*;
 
 public class Game {
 
-    public static final List<Door> DOORS =
-        List.of(
-            new Door(Room.LIBRARY, Room.LIVING_ROOM),
-            new Door(Room.LIBRARY, Room.HOBBY_ROOM),
-            new Door(Room.LIVING_ROOM, Room.DINING_ROOM),
-            new Door(Room.DINING_ROOM, Room.KITCHEN),
-            new Door(Room.GARAGE, Room.KITCHEN),
-            new Door(Room.GARAGE, Room.HOBBY_ROOM)
-        );
+    public static final List<Door> DOORS;
 
-    public static final int TIMES = 9;
+    public static final int TIMES;
 
-    public static final String VICTIM = "George";
+    public static final String VICTIM;
+
+    private static final String LAST_PATTERN;
+
+    private static final String WHEN_PATTERN;
+
+    private static final String WHERE_PATTERN;
+
+    static {
+        DOORS =
+            List.of(
+                new Door(Room.LIBRARY, Room.LIVING_ROOM),
+                new Door(Room.LIBRARY, Room.HOBBY_ROOM),
+                new Door(Room.LIVING_ROOM, Room.DINING_ROOM),
+                new Door(Room.DINING_ROOM, Room.KITCHEN),
+                new Door(Room.GARAGE, Room.KITCHEN),
+                new Door(Room.GARAGE, Room.HOBBY_ROOM)
+            );
+        TIMES = 9;
+        VICTIM = "George";
+        LAST_PATTERN = "%s, wann haben Sie %s zuletzt gesehen?";
+        WHEN_PATTERN = "%s, wann waren Sie %s %s?";
+        WHERE_PATTERN = "%s, wo waren Sie um %s Uhr?";
+    }
 
     public static String jobDescription() {
         final StringBuilder result = new StringBuilder();
@@ -34,14 +49,12 @@ public class Game {
         result.append(Game.VICTIM);
         result.append(".\nUm 10 Uhr abends wurde ");
         result.append(Game.VICTIM);
-        result.append(" tot auf seinem Anwesen aufgefunden.\nMittags hatte ");
-        result.append(Game.VICTIM);
-        result.append(" noch einem Bankett mit vielen Teilnehmern vorgestanden, bevor ");
-        result.append(Game.VICTIM);
+        result.append(" tot auf seinem Anwesen aufgefunden.\nMittags hatte er");
+        result.append(" noch einem Bankett mit vielen Teilnehmern vorgestanden, bevor er");
         result.append(" sich mit seinen Gästen auf sein Anwesen zurückzog.\n");
         result.append(Game.VICTIM);
-        result.append(" muss von einem der Gäste zwischen 1 Uhr nachmittags und 9 Uhr abends ermordet worden sein.\n");
-        result.append("Wir beauftragen Sie damit, herauszufinden, wer ");
+        result.append(" muss von einem seiner Gäste zwischen 1 Uhr nachmittags und 9 Uhr abends ermordet worden sein.");
+        result.append("\nWir beauftragen Sie damit, herauszufinden, wer ");
         result.append(Game.VICTIM);
         result.append(" wann und in welchem Raum ermordet hat.\nSie können dazu die Gäste befragen. Aber Vorsicht - ");
         result.append("der Mörder lügt bestimmt!\n\n");
@@ -53,16 +66,22 @@ public class Game {
         return String.valueOf(time + 1);
     }
 
+    private int accusations;
+
     private final Room[][] locations;
 
     private final Suspect murderer;
 
     private final int murderTime;
 
+    private int questions;
+
     private final Random random;
 
     public Game() {
         this.random = new Random();
+        this.questions = 0;
+        this.accusations = 0;
         final int numberOfSuspects = Suspect.values().length;
         this.locations = new Room[numberOfSuspects + 1][Game.TIMES];
         final Room[] rooms = Room.values();
@@ -85,6 +104,14 @@ public class Game {
         this.locations = locations;
         this.murderer = murderer;
         this.murderTime = murderTime;
+    }
+
+    public int getNumberOfAccusations() {
+        return this.accusations;
+    }
+
+    public int getNumberOfQuestions() {
+        return this.questions;
     }
 
     public Information last(final Suspect suspect) {
@@ -111,12 +138,31 @@ public class Game {
             }
         }
         if (lastTime == null) {
-            return new Information(null, null, null, null);
+            this.questions++;
+            return
+                new Information(
+                    suspect,
+                    String.format(Game.LAST_PATTERN, suspect.name, Game.VICTIM),
+                    null,
+                    null,
+                    null,
+                    null
+                );
         }
-        return this.where(suspect, lastTime);
+        final Information whereInfo = this.where(suspect, lastTime);
+        return
+            new Information(
+                suspect,
+                String.format(Game.LAST_PATTERN, suspect.name, Game.VICTIM),
+                lastTime,
+                whereInfo.room(),
+                whereInfo.here(),
+                whereInfo.nextDoor()
+            );
     }
 
     public int solve(final int murderer, final int time, final int place) {
+        this.accusations++;
         int result = 0;
         if (murderer == this.murderer.ordinal()) {
             result++;
@@ -131,6 +177,7 @@ public class Game {
     }
 
     public Information when(final Suspect suspect, final Room room) {
+        this.questions++;
         final List<Integer> times = new ArrayList<Integer>();
         final int person = suspect.ordinal();
         final boolean isMurderer = suspect == this.murderer;
@@ -143,13 +190,30 @@ public class Game {
             }
         }
         if (times.isEmpty()) {
-            return new Information(null, null, null, null);
+            return
+                new Information(
+                    suspect,
+                    String.format(Game.WHEN_PATTERN, suspect.name, room.prefix, room.name),
+                    null,
+                    null,
+                    null,
+                    null
+                );
         }
         final String time = Game.toTime(times.get(this.random.nextInt(times.size())));
-        return new Information(time, room, this.here(suspect, time, room), this.nextDoor(time, room));
+        return
+            new Information(
+                suspect,
+                String.format(Game.WHEN_PATTERN, suspect.name, room.prefix, room.name),
+                time,
+                room,
+                this.here(suspect, time, room),
+                this.nextDoor(time, room)
+            );
     }
 
     public Information where(final Suspect suspect, final String time) {
+        this.questions++;
         final Room room = this.locations[suspect.ordinal()][Integer.parseInt(time) - 1];
         if (suspect == this.murderer && Integer.parseInt(time) - 1 == this.murderTime) {
             final Room[] rooms = Room.values();
@@ -157,9 +221,25 @@ public class Game {
             while (room == otherRoom) {
                 otherRoom = rooms[this.random.nextInt(rooms.length - 1)];
             }
-            return new Information(time, otherRoom, Set.of(), Set.of());
+            return
+                new Information(
+                    suspect,
+                    String.format(Game.WHERE_PATTERN, suspect.name, time),
+                    time,
+                    otherRoom,
+                    Set.of(),
+                    Set.of()
+                );
         }
-        return new Information(time, room, this.here(suspect, time, room), this.nextDoor(time, room));
+        return
+            new Information(
+                suspect,
+                String.format(Game.WHERE_PATTERN, suspect.name, time),
+                time,
+                room,
+                this.here(suspect, time, room),
+                this.nextDoor(time, room)
+            );
     }
 
     private Set<String> here(final Suspect suspect, final String time, final Room room) {

@@ -36,6 +36,15 @@ application {
     mainClass = "sherlock.Main"
 }
 
+tasks.withType<Jar>() {
+    configurations["compileClasspath"].forEach { file: File ->
+        from(zipTree(file.absoluteFile))
+    }
+    manifest {
+        attributes["Main-Class"] = "sherlock.Main"
+    }
+}
+
 tasks.named<Test>("test") {
     // Use TestNG for unit tests.
     useTestNG()

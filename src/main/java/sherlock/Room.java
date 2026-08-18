@@ -4,29 +4,33 @@ import java.awt.*;
 
 public enum Room {
 
-    DINING_ROOM("Esszimmer", new double[][] {{0.2, 0.2}, {0.2, 0.5}, {0.55, 0.5}, {0.55, 0.2}}),
+    DINING_ROOM("Esszimmer", "im", new double[][] {{0.2, 0.2}, {0.2, 0.5}, {0.55, 0.5}, {0.55, 0.2}}),
 
-    GARAGE("Garage", new double[][] {{0.8, 0.2}, {0.8, 0.7}, {0.99, 0.7}, {0.99, 0.2}}),
+    GARAGE("Garage", "in der", new double[][] {{0.8, 0.2}, {0.8, 0.7}, {0.99, 0.7}, {0.99, 0.2}}),
 
-    HOBBY_ROOM("Hobbyraum", new double[][] {{0.55, 0.5}, {0.8, 0.5}, {0.8, 0.9}, {0.55, 0.9}}),
+    HOBBY_ROOM("Hobbyraum", "im", new double[][] {{0.55, 0.5}, {0.8, 0.5}, {0.8, 0.9}, {0.55, 0.9}}),
 
-    KITCHEN("Küche", new double[][] {{0.55, 0.2}, {0.55, 0.5}, {0.8, 0.5}, {0.8, 0.2}}),
+    KITCHEN("Küche", "in der", new double[][] {{0.55, 0.2}, {0.55, 0.5}, {0.8, 0.5}, {0.8, 0.2}}),
 
-    LIBRARY("Bibliothek", new double[][] {{0.3, 0.5}, {0.55, 0.5}, {0.55, 0.9}, {0.3, 0.9}}),
+    LIBRARY("Bibliothek", "in der", new double[][] {{0.3, 0.5}, {0.55, 0.5}, {0.55, 0.9}, {0.3, 0.9}}),
 
     LIVING_ROOM(
         "Wohnzimmer",
+        "im",
         new double[][] {{0.01, 0.9}, {0.3, 0.9}, {0.3, 0.5}, {0.2, 0.5}, {0.2, 0.2}, {0.01, 0.2}}
     ),
 
-    OK("OK", new double[][] {{0.85, 0.8}, {0.99, 0.8}, {0.99, 0.9}, {0.85, 0.9}});
+    OK("OK", "", new double[][] {{0.85, 0.8}, {0.99, 0.8}, {0.99, 0.9}, {0.85, 0.9}});
 
     public final String name;
 
+    public final String prefix;
+
     private final double[][] shape;
 
-    private Room(final String name, final double[][] shape) {
+    private Room(final String name, final String prefix, final double[][] shape) {
         this.name = name;
+        this.prefix = prefix;
         this.shape = shape;
     }
 

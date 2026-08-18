@@ -65,17 +65,26 @@ public class Engine {
                 );
             switch (this.game.solve(murderer, time, place)) {
             case 3:
-                final String placePrefix = List.of(1, 3, 4).contains(place) ? "in der" : "im";
+                final int accusations = this.game.getNumberOfAccusations();
                 JOptionPane.showMessageDialog(
                     null,
                     String.format(
-                        "Herzlichen Glückwunsch, Herr Holmes!\n%s%s hat %s um %s Uhr %s %s ermordet.",
+                        "Herzlichen Glückwunsch, Herr Holmes!\n%s%s hat %s um %s Uhr %s %s ermordet.\n%s%s%s%s",
                         "Sie haben den Fall gelöst!\n\n",
                         Suspect.values()[murderer].name,
                         Game.VICTIM,
                         time + 1,
-                        placePrefix,
-                        Room.values()[place].name
+                        Room.values()[place].prefix,
+                        Room.values()[place].name,
+                        "Sie haben ",
+                        this.game.getNumberOfQuestions(),
+                        " Befragungen durchgeführt.",
+                        accusations == 1 ?
+                            "" :
+                                "\nLeider haben Sie "
+                                + accusations
+                                + " falsche Beschuldigungen erhoben.\n"
+                                + "Vielleicht sollten wir uns beim nächsten Mal doch lieber an Scotland Yard wenden."
                     )
                 );
                 System.exit(0);

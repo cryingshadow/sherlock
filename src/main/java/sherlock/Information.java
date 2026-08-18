@@ -3,14 +3,26 @@ package sherlock;
 import java.util.*;
 import java.util.stream.*;
 
-public record Information(String time, Room room, Set<String> here, Set<String> nextDoor) {
+public record Information(
+    Suspect suspect,
+    String question,
+    String time,
+    Room room,
+    Set<String> here,
+    Set<String> nextDoor
+) {
 
     @Override
     public String toString() {
-        if (this.room == null) {
-            return "Am Nachmittag leider gar nicht mehr.";
-        }
         final StringBuilder result = new StringBuilder();
+        result.append(this.question());
+        result.append("\n");
+        result.append(this.suspect().name);
+        result.append(": ");
+        if (this.room == null) {
+            result.append("Am Nachmittag leider gar nicht mehr.");
+            return result.toString();
+        }
         result.append("Um ");
         result.append(this.time);
         result.append(" Uhr war ich ");
